@@ -43,13 +43,14 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+extern uint32_t _app_size;   /* symbol từ linker, lấy địa chỉ chính là giá trị */
 /* Application Header: đặt vào section .app_header (Sector 4, 0x08010000) */
 __attribute__((section(".app_header"), used))
 const app_header_t app_header =
 {
     .ota_flag = 0U,
     .magic    = APP_MAGIC,
-    .size     = APP_SIZE,   /* tạm thời, ở bước dưới sẽ thay bằng size thật */
+    .size     = (uint32_t)&_app_size,
     .crc      = 0U,
     .version  = 0U
 };

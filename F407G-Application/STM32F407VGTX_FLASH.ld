@@ -156,6 +156,8 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
 
   } >RAM AT> FLASH
+    /* Kích thước thật của App trong flash (byte) */
+  _app_size = LOADADDR(.data) + SIZEOF(.data) - ORIGIN(FLASH);
 
   _siccmram = LOADADDR(.ccmram);
 
