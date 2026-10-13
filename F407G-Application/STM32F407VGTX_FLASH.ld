@@ -47,12 +47,18 @@ MEMORY
 {
   CCMRAM    (xrw)    : ORIGIN = 0x10000000,   LENGTH = 64K
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
+  APP_HEADER (r)   : ORIGIN = 0x08010000,   LENGTH = 64K
   FLASH    (rx)    : ORIGIN = 0x08020000,   LENGTH = 384K
 }
 
 /* Sections */
 SECTIONS
 {
+  /* Application Header: nằm riêng ở Sector 4 */
+  .app_header :
+  {
+    KEEP(*(.app_header))
+  } >APP_HEADER
 
   /* The startup code into "FLASH" Rom type memory */
   .isr_vector :

@@ -63,8 +63,8 @@ all: main-build
 main-build: F407G-Application.elf secondary-outputs
 
 # Tool invocations
-F407G-Application.elf F407G-Application.map: $(OBJS) $(USER_OBJS) D:\TaiLieu\MCU\Practice\New\ Folder\F407G-Application\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "F407G-Application.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\TaiLieu\MCU\Practice\New Folder\F407G-Application\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="F407G-Application.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+F407G-Application.elf F407G-Application.map: $(OBJS) $(USER_OBJS) D:\TaiLieu\MCU\Mock_project\F407G-Application\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "F407G-Application.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\TaiLieu\MCU\Mock_project\F407G-Application\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="F407G-Application.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

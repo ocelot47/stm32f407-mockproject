@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "app_header.h"
 #include "flash_layout.h"
 /* USER CODE END Includes */
 
@@ -42,7 +43,16 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+/* Application Header: đặt vào section .app_header (Sector 4, 0x08010000) */
+__attribute__((section(".app_header"), used))
+const app_header_t app_header =
+{
+    .ota_flag = 0U,
+    .magic    = APP_MAGIC,
+    .size     = APP_SIZE,   /* tạm thời, ở bước dưới sẽ thay bằng size thật */
+    .crc      = 0U,
+    .version  = 0U
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
