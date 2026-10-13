@@ -1,0 +1,2 @@
+../Core/Src/bl_jump.c:5:14:validate_app	6
+../Core/Src/bl_jump.c:34:6:jump_to_app	2

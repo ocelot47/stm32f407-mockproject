@@ -1,0 +1,2 @@
+../Core/Src/bl_jump.c:5:14:validate_app	24	static
+../Core/Src/bl_jump.c:34:6:jump_to_app	32	static,ignoring_inline_asm
