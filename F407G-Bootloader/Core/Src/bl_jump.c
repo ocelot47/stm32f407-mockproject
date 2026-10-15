@@ -1,42 +1,50 @@
 #include "bl_jump.h"
+#include "bl_crc.h"
 #include "app_header.h"
 #include "flash_layout.h"
 #include "stm32f4xx_hal.h"
 
 app_status_t validate_app(void)
 {
-    const volatile app_header_t *hdr = (const volatile app_header_t *)APP_HEADER_START_ADDR;
+    const volatile app_header_t *hdr =
+        (const volatile app_header_t *)APP_HEADER_START_ADDR;
 
-    /* 1. Magic phải khớp */
+    uint32_t app_msp           = *(__IO uint32_t *)(APP_START_ADDR + MSP_OFFSET);
+    uint32_t app_reset_handler = *(__IO uint32_t *)(APP_START_ADDR + RESET_HANDLER_OFFSET);
+
+    /* 1. Magic */
     if (hdr->magic != APP_MAGIC)
     {
         return APP_MAGIC_INVALID;
     }
 
-    /* 2. Size phải hợp lý: khác 0 và không vượt vùng App */
-    if ((hdr->size == 0U) || (hdr->size > APP_SIZE))
+    /* 2. Size: đủ chứa Vector Table (8 byte) và không vượt vùng App */
+    if ((hdr->size < 8U) || (hdr->size > APP_SIZE))
     {
         return APP_SIZE_INVALID;
     }
-    uint32_t app_msp           = *(__IO uint32_t *)(APP_START_ADDR + MSP_OFFSET);
-    uint32_t app_reset_handler = *(__IO uint32_t *)(APP_START_ADDR + RESET_HANDLER_OFFSET);
 
-    /* 1. Word 0: Initial MSP phải nằm trong SRAM
-     *    (MSP khởi tạo thường = 0x20020000 = SRAM_END_ADDR nên dùng <=) */
+    /* 3. CRC: tính trên [APP_START_ADDR, APP_START_ADDR + size) */
+    uint32_t crc = bl_crc32((const uint8_t *)APP_START_ADDR, hdr->size);
+    if (crc != hdr->crc)
+    {
+        return APP_CRC_INVALID;
+    }
+
+    /* 4. Initial MSP phải nằm trong SRAM */
     if ((app_msp < SRAM_START_ADDR) || (app_msp > SRAM_END_ADDR))
     {
         return APP_MSP_INVALID;
     }
 
-    /* 2. Word 1: Reset Handler phải có Thumb bit = 1 */
+    /* 5. Reset Handler: Thumb bit = 1 */
     if ((app_reset_handler & 0x1UL) == 0UL)
     {
         return APP_RESET_HANDLER_THUMB_INVALID;
     }
 
-    /* 3. Bỏ Thumb bit, địa chỉ phải nằm trong [APP_START_ADDR, APP_END_ADDR) */
+    /* 6. Reset Handler (bỏ Thumb bit) nằm trong vùng App */
     uint32_t reset_addr = app_reset_handler & ~0x1UL;
-
     if ((reset_addr < APP_START_ADDR) || (reset_addr >= APP_END_ADDR))
     {
         return APP_RESET_HANDLER_RANGE_INVALID;
