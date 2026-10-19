@@ -29,25 +29,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  12 .ARM.attributes 00000030  00000000  00000000  0000300c  2**0
                   CONTENTS, READONLY
- 13 .debug_info   00004299  00000000  00000000  0000303c  2**0
+ 13 .debug_info   000042ab  00000000  00000000  0000303c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_abbrev 0000132d  00000000  00000000  000072d5  2**0
+ 14 .debug_abbrev 00001343  00000000  00000000  000072e7  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_aranges 000004a0  00000000  00000000  00008608  2**3
+ 15 .debug_aranges 000004a0  00000000  00000000  00008630  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_rnglists 0000034d  00000000  00000000  00008aa8  2**0
+ 16 .debug_rnglists 0000034e  00000000  00000000  00008ad0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  0001f2f1  00000000  00000000  00008df5  2**0
+ 17 .debug_macro  0001f2df  00000000  00000000  00008e1e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   000065a6  00000000  00000000  000280e6  2**0
+ 18 .debug_line   000065da  00000000  00000000  000280fd  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    000bcbc9  00000000  00000000  0002e68c  2**0
+ 19 .debug_str    000bcb80  00000000  00000000  0002e6d7  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000043  00000000  00000000  000eb255  2**0
+ 20 .comment      00000043  00000000  00000000  000eb257  2**0
                   CONTENTS, READONLY
- 21 .debug_frame  00000f24  00000000  00000000  000eb298  2**2
+ 21 .debug_frame  00000f24  00000000  00000000  000eb29c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 22 .debug_line_str 0000005b  00000000  00000000  000ec1bc  2**0
+ 22 .debug_line_str 0000005b  00000000  00000000  000ec1c0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -373,9 +373,9 @@ Disassembly of section .text:
 
 080004f4 <bl_crc32_bitwise>:
 
-return crc ^ 0xFFFFFFFFUL;
-}
-
+/* =====================================================================
+ * Cách 1: for từng bit (không cần bảng)
+ * ===================================================================== */
 uint32_t bl_crc32_bitwise(const uint32_t *data, uint32_t len)
 {
  80004f4:	b480      	push	{r7}
@@ -383,16 +383,16 @@ uint32_t bl_crc32_bitwise(const uint32_t *data, uint32_t len)
  80004f8:	af00      	add	r7, sp, #0
  80004fa:	6078      	str	r0, [r7, #4]
  80004fc:	6039      	str	r1, [r7, #0]
-    uint32_t crc = 0xFFFFFFFFUL;                  /* init, giống CRC->CR = RESET */
+    uint32_t crc = 0xFFFFFFFFUL;                      /* init, giống CRC->CR = RESET */
  80004fe:	f04f 33ff 	mov.w	r3, #4294967295
  8000502:	617b      	str	r3, [r7, #20]
 
-    for (uint32_t i = 0; i < (len / 4U); i++)     /* len là số BYTE, chia 4 ra số word */
+    for (uint32_t i = 0; i < (len / 4U); i++)         /* len là số BYTE */
  8000504:	2300      	movs	r3, #0
  8000506:	613b      	str	r3, [r7, #16]
  8000508:	e01f      	b.n	800054a <bl_crc32_bitwise+0x56>
     {
-        crc ^= data[i];                           /* trộn cả word 32 bit vào crc */
+        crc ^= data[i];                               /* trộn cả word 32 bit vào crc */
  800050a:	693b      	ldr	r3, [r7, #16]
  800050c:	009b      	lsls	r3, r3, #2
  800050e:	687a      	ldr	r2, [r7, #4]
@@ -402,7 +402,7 @@ uint32_t bl_crc32_bitwise(const uint32_t *data, uint32_t len)
  8000516:	4053      	eors	r3, r2
  8000518:	617b      	str	r3, [r7, #20]
 
-        for (uint8_t bit = 0; bit < 32U; bit++)   /* 32 lần dịch, MSB trước */
+        for (uint8_t bit = 0; bit < 32U; bit++)       /* 32 lần dịch, MSB trước */
  800051a:	2300      	movs	r3, #0
  800051c:	73fb      	strb	r3, [r7, #15]
  800051e:	e00e      	b.n	800053e <bl_crc32_bitwise+0x4a>
@@ -426,14 +426,14 @@ uint32_t bl_crc32_bitwise(const uint32_t *data, uint32_t len)
  8000532:	697b      	ldr	r3, [r7, #20]
  8000534:	005b      	lsls	r3, r3, #1
  8000536:	617b      	str	r3, [r7, #20]
-        for (uint8_t bit = 0; bit < 32U; bit++)   /* 32 lần dịch, MSB trước */
+        for (uint8_t bit = 0; bit < 32U; bit++)       /* 32 lần dịch, MSB trước */
  8000538:	7bfb      	ldrb	r3, [r7, #15]
  800053a:	3301      	adds	r3, #1
  800053c:	73fb      	strb	r3, [r7, #15]
  800053e:	7bfb      	ldrb	r3, [r7, #15]
  8000540:	2b1f      	cmp	r3, #31
  8000542:	d9ed      	bls.n	8000520 <bl_crc32_bitwise+0x2c>
-    for (uint32_t i = 0; i < (len / 4U); i++)     /* len là số BYTE, chia 4 ra số word */
+    for (uint32_t i = 0; i < (len / 4U); i++)         /* len là số BYTE */
  8000544:	693b      	ldr	r3, [r7, #16]
  8000546:	3301      	adds	r3, #1
  8000548:	613b      	str	r3, [r7, #16]
@@ -446,7 +446,7 @@ uint32_t bl_crc32_bitwise(const uint32_t *data, uint32_t len)
         }
     }
 
-    return crc;                                   /* không XOR cuối */
+    return crc;                                       /* không XOR cuối */
  8000554:	697b      	ldr	r3, [r7, #20]
 }
  8000556:	4618      	mov	r0, r3

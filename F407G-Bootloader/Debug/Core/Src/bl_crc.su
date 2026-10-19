@@ -1,2 +1,2 @@
-../Core/Src/bl_crc.c:75:10:bl_crc32	24	static
-../Core/Src/bl_crc.c:85:10:bl_crc32_bitwise	32	static
+../Core/Src/bl_crc.c:6:10:bl_crc32_bitwise	32	static
+../Core/Src/bl_crc.c:101:10:bl_crc32_lookup	24	static
