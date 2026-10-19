@@ -18,14 +18,14 @@ app_status_t validate_app(void)
         return APP_MAGIC_INVALID;
     }
 
-    /* 2. Size: đủ chứa Vector Table (8 byte) và không vượt vùng App */
-    if ((hdr->size < 8U) || (hdr->size > APP_SIZE))
+    /* 2. Size: đủ chứa Vector Table (8 byte), không vượt vùng App, chia hết cho 4 */
+    if ((hdr->size < 8U) || (hdr->size > APP_SIZE) || ((hdr->size & 0x3U) != 0U))
     {
         return APP_SIZE_INVALID;
     }
 
-    /* 3. CRC: tính trên [APP_START_ADDR, APP_START_ADDR + size) */
-    uint32_t crc = bl_crc32((const uint8_t *)APP_START_ADDR, hdr->size);
+    /* 3. CRC kiểu STM32: tính trên [APP_START_ADDR, APP_START_ADDR + size) */
+    uint32_t crc = bl_crc32_hw((const uint32_t *)APP_START_ADDR, hdr->size);
     if (crc != hdr->crc)
     {
         return APP_CRC_INVALID;

@@ -1,3 +1,4 @@
+"./Core/Src/bl_bench.o"
 "./Core/Src/bl_crc.o"
 "./Core/Src/bl_jump.o"
 "./Core/Src/main.o"
@@ -9,6 +10,7 @@
 "./Core/Startup/startup_stm32f407vgtx.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o"
+"./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_crc.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.o"
