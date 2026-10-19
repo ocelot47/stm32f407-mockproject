@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bl_jump.h"
+#include "bl_bench.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +91,9 @@ int main(void)
   MX_GPIO_Init();
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
+#ifdef BL_BENCHMARK
+bl_bench_run();
+#endif
   /*
    * Validate the Application.
    * Only jump if Application is valid.

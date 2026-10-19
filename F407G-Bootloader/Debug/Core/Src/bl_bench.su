@@ -1,0 +1,2 @@
+../Core/Src/bl_bench.c:8:13:dwt_init	4	static
+../Core/Src/bl_bench.c:15:6:bl_bench_run	24	static

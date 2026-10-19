@@ -37,17 +37,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_rnglists 0000039d  00000000  00000000  00009650  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  0001f68b  00000000  00000000  000099ed  2**0
+ 17 .debug_macro  000015dc  00000000  00000000  000099ed  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   0000726b  00000000  00000000  00029078  2**0
+ 18 .debug_line   0000727b  00000000  00000000  0000afc9  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    000bcea5  00000000  00000000  000302e3  2**0
+ 19 .debug_str    000bceb6  00000000  00000000  00012244  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000043  00000000  00000000  000ed188  2**0
+ 20 .comment      00000043  00000000  00000000  000cf0fa  2**0
                   CONTENTS, READONLY
- 21 .debug_frame  000010b8  00000000  00000000  000ed1cc  2**2
+ 21 .debug_frame  000010b8  00000000  00000000  000cf140  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 22 .debug_line_str 0000005b  00000000  00000000  000ee284  2**0
+ 22 .debug_line_str 0000005b  00000000  00000000  000d01f8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -700,7 +700,7 @@ int main(void)
  8000690:	f000 f894 	bl	80007bc <MX_GPIO_Init>
   MX_CRC_Init();
  8000694:	f000 f87e 	bl	8000794 <MX_CRC_Init>
-  /* USER CODE BEGIN 2 */
+#endif
   /*
    * Validate the Application.
    * Only jump if Application is valid.
