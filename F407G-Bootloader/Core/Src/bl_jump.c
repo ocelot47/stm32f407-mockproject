@@ -25,7 +25,7 @@ app_status_t validate_app(void)
     }
 
     /* 3. CRC kiểu STM32: tính trên [APP_START_ADDR, APP_START_ADDR + size) */
-    uint32_t crc = bl_crc32_bitwise((const uint32_t *)APP_START_ADDR, hdr->size);
+    uint32_t crc = bl_crc32_hw((const uint32_t *)APP_START_ADDR, hdr->size);
     if (crc != hdr->crc)
     {
         return APP_CRC_INVALID;

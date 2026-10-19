@@ -1,5 +1,7 @@
 #include "bl_crc.h"
+#include "main.h"          /* lấy CRC_HandleTypeDef và HAL */
 
+extern CRC_HandleTypeDef hcrc;
 /* =====================================================================
  * Cách 1: for từng bit (không cần bảng)
  * ===================================================================== */
@@ -114,4 +116,12 @@ uint32_t bl_crc32_lookup(const uint32_t *data, uint32_t len)
     }
 
     return crc;                                       /* không XOR cuối */
+}
+/* =====================================================================
+ * Cách 3: khối CRC phần cứng STM32, gọi qua HAL
+ * ===================================================================== */
+uint32_t bl_crc32_hw(const uint32_t *data, uint32_t len)
+{
+    /* Tham số thứ 3 của HAL là số WORD 32 bit, không phải số byte */
+    return HAL_CRC_Calculate(&hcrc, (uint32_t *)data, len / 4U);
 }

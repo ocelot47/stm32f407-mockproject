@@ -14,5 +14,6 @@
  */
 uint32_t bl_crc32_bitwise(const uint32_t *data, uint32_t len);
 uint32_t bl_crc32_lookup(const uint32_t *data, uint32_t len);
+uint32_t bl_crc32_hw(const uint32_t *data, uint32_t len);
 
 #endif /* INC_BL_CRC_H_ */
