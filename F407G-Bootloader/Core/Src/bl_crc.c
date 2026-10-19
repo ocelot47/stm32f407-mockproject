@@ -82,6 +82,29 @@ while (len--) {
 return crc ^ 0xFFFFFFFFUL;
 }
 
+uint32_t bl_crc32_bitwise(const uint32_t *data, uint32_t len)
+{
+    uint32_t crc = 0xFFFFFFFFUL;                  /* init, giống CRC->CR = RESET */
+
+    for (uint32_t i = 0; i < (len / 4U); i++)     /* len là số BYTE, chia 4 ra số word */
+    {
+        crc ^= data[i];                           /* trộn cả word 32 bit vào crc */
+
+        for (uint8_t bit = 0; bit < 32U; bit++)   /* 32 lần dịch, MSB trước */
+        {
+            if (crc & 0x80000000UL)
+            {
+                crc = (crc << 1) ^ 0x04C11DB7UL;
+            }
+            else
+            {
+                crc = (crc << 1);
+            }
+        }
+    }
+
+    return crc;                                   /* không XOR cuối */
+}
 //uint32_t bl_crc32(const uint8_t *data, uint32_t length)
 //{
 //    uint32_t crc = CRC32_INIT;

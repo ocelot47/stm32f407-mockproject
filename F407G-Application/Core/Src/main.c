@@ -51,7 +51,7 @@ const app_header_t app_header =
     .ota_flag = 0U,
     .magic    = APP_MAGIC,
     .size     = 0x000017C8UL,
-    .crc      = 0x520E799BUL,
+    .crc      = 0x24A47377UL,
     .version  = 0U
 };
 /* USER CODE END PV */
