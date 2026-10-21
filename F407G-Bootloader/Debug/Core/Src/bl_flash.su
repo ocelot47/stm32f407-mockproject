@@ -1,0 +1,7 @@
+../Core/Src/bl_flash.c:7:12:width_ok	16	static
+../Core/Src/bl_flash.c:12:17:to_type_program	16	static
+../Core/Src/bl_flash.c:23:17:to_voltage_range	16	static
+../Core/Src/bl_flash.c:34:12:range_ok	16	static
+../Core/Src/bl_flash.c:42:19:bl_flash_erase_sector	48	static
+../Core/Src/bl_flash.c:67:19:bl_flash_write	48	static
+../Core/Src/bl_flash.c:99:19:bl_flash_verify	24	static

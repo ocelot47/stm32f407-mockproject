@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "app_header.h"
 #include "flash_layout.h"
+#include "app_ota.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,7 +33,13 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#ifdef NORMAL_APPLICATION
+    #define APP_LED_PORT   LD4_GPIO_Port   /* xanh lá    */
+    #define APP_LED_PIN    LD4_Pin
+#else
+    #define APP_LED_PORT   LD6_GPIO_Port   /* xanh dương */
+    #define APP_LED_PIN    LD6_Pin
+#endif
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,16 +50,17 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-//extern uint32_t _app_size;   /* symbol từ linker, lấy địa chỉ chính là giá trị */
+volatile uint8_t g_btn_pressed = 0U;
+static uint32_t  s_last_press_tick = 0U;
 /* Application Header: đặt vào section .app_header (Sector 4, 0x08010000) */
 __attribute__((section(".app_header"), used))
 const app_header_t app_header =
 {
     .ota_flag = 0U,
     .magic    = APP_MAGIC,
-    .size     = 0x000017C8UL,
-    .crc      = 0x24A47377UL,
-    .version  = 0U
+    .size     = 0x00001FC4UL,
+    .crc      = 0x5D88D4D4UL,
+	.version  = 1U
 };
 /* USER CODE END PV */
 
@@ -111,7 +119,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -121,8 +128,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_GPIO_TogglePin(LD4_GPIO_Port, LD4_Pin);
-	  HAL_Delay(100);
+	  if (g_btn_pressed != 0U)
+	      {
+	          g_btn_pressed = 0U;
+	          if (app_ota_request() == 0)
+	          {
+	              NVIC_SystemReset();
+	          }
+	      }
+	      HAL_GPIO_TogglePin(APP_LED_PORT, APP_LED_PIN);
+	      HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }
@@ -186,18 +201,28 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, LD4_Pin|LD3_Pin|LD6_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : LD4_Pin */
-  GPIO_InitStruct.Pin = LD4_Pin;
+  /*Configure GPIO pin : PA0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LD4_Pin LD3_Pin LD6_Pin */
+  GPIO_InitStruct.Pin = LD4_Pin|LD3_Pin|LD6_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD4_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -205,7 +230,18 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == GPIO_PIN_0)                       /* nut User B1 = PA0 */
+    {
+        uint32_t now = HAL_GetTick();
+        if ((now - s_last_press_tick) >= 50U)         /* debounce 50 ms */
+        {
+            s_last_press_tick = now;
+            g_btn_pressed = 1U;                       /* ISR chi dat co */
+        }
+    }
+}
 /* USER CODE END 4 */
 
 /**

@@ -1,6 +1,8 @@
 "./Core/Src/bl_bench.o"
 "./Core/Src/bl_crc.o"
+"./Core/Src/bl_flash.o"
 "./Core/Src/bl_jump.o"
+"./Core/Src/bl_ota.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32f4xx_hal_msp.o"
 "./Core/Src/stm32f4xx_it.o"

@@ -23,6 +23,10 @@
 /* USER CODE BEGIN Includes */
 #include "bl_jump.h"
 #include "bl_bench.h"
+#include "bl_ota.h"
+#include "bl_flash.h"
+#include "app_header.h"
+#include "flash_layout.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,7 +48,8 @@
 CRC_HandleTypeDef hcrc;
 
 /* USER CODE BEGIN PV */
-
+volatile uint32_t g_ft_res[3];   /* kết quả xoá + ghi + verify cho x8, x16, x32 */
+volatile uint32_t g_ft_neg[3];   /* ca tham số sai, phải = 1 (ERR_PARAM) */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,9 +96,27 @@ int main(void)
   MX_GPIO_Init();
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
+  const volatile app_header_t *h = (const volatile app_header_t *)APP_HEADER_START_ADDR;
+
+  if (h->ota_flag == 1U)
+  {
+      (void)run_ota();     /* thanh cong hay loi deu di tiep xuong validate_app() */
+  }
 #ifdef BL_BENCHMARK
 bl_bench_run();
 #endif
+  /*
+   * Kiểm tra OTA flag. Nếu == 1: chạy OTA trước.
+   * Sau đó LUÔN đi tiếp xuống validate_app() rồi jump_to_app().
+   */
+  const volatile app_header_t *hdr =
+      (const volatile app_header_t *)APP_HEADER_START_ADDR;
+
+  if (hdr->ota_flag == 1U)
+  {
+      run_ota();
+  }
+
   /*
    * Validate the Application.
    * Only jump if Application is valid.
@@ -210,14 +233,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, LD5_Pin|LD3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : LD5_Pin */
-  GPIO_InitStruct.Pin = LD5_Pin;
+  GPIO_InitStruct.Pin = LD5_Pin|LD3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD5_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

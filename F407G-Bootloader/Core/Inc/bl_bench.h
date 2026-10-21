@@ -1,6 +1,6 @@
 #ifndef INC_BL_BENCH_H_
 #define INC_BL_BENCH_H_
-/* #define BL_BENCHMARK */
+//#define BL_BENCHMARK
 
 #include <stdint.h>
 

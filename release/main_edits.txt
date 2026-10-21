@@ -1,0 +1,81 @@
+=====================================================================
+ A. BOOTLOADER  -  F407G-Bootloader/Core/Src/main.c
+=====================================================================
+
+/* USER CODE BEGIN Includes */
+#include "bl_jump.h"
+#include "bl_ota.h"          /* <-- THIEU DONG NAY nen build bao "implicit declaration of run_ota" */
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN 2 */
+{
+    const volatile app_header_t *h = (const volatile app_header_t *)APP_HEADER_START_ADDR;
+
+    if (h->ota_flag == 1U)
+    {
+        (void)run_ota();     /* thanh cong hay loi deu di tiep xuong validate_app() */
+    }
+}
+/* ... tiep theo la khoi  if (APP_VALID == validate_app()) { jump_to_app(); }  co san ... */
+/* USER CODE END 2 */
+
+(Neu main.c cua ban da co san lenh goi run_ota(); thi giu nguyen, chi can them #include "bl_ota.h".)
+
+Muon do benchmark OTA: them  BL_BENCHMARK_OTA  vao
+  Properties > C/C++ Build > Settings > MCU GCC Compiler > Preprocessor > Define symbols
+Chon do rong ghi: sua dong  #define OTA_FLASH_WIDTH  BL_FLASH_X32  (hoac X16, X8) trong bl_ota.h.
+
+
+=====================================================================
+ B. APPLICATION  -  F407G-Application
+=====================================================================
+
+B1. CubeMX (F407G-Application.ioc):
+    - Chan PA0 -> GPIO_EXTI0
+    - GPIO mode: External Interrupt Mode with Rising edge trigger detection
+    - Tab NVIC: tick "EXTI line0 interrupt"
+    - Generate Code
+    (Neu board cua ban noi nut User o chan khac thi doi PA0 cho dung.)
+
+B2. Them app_ota.c vao Core/Src, app_ota.h vao Core/Inc.
+
+B3. main.c cua Application:
+
+/* USER CODE BEGIN Includes */
+#include "app_header.h"
+#include "flash_layout.h"
+#include "app_ota.h"
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN PV */
+volatile uint8_t g_btn_pressed = 0U;
+static uint32_t  s_last_press_tick = 0U;
+/* ... giu nguyen khai bao app_header const o day ... */
+/* USER CODE END PV */
+
+/* USER CODE BEGIN 4 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == GPIO_PIN_0)                       /* nut User B1 = PA0 */
+    {
+        uint32_t now = HAL_GetTick();
+        if ((now - s_last_press_tick) >= 50U)         /* debounce 50 ms */
+        {
+            s_last_press_tick = now;
+            g_btn_pressed = 1U;                       /* ISR chi dat co */
+        }
+    }
+}
+/* USER CODE END 4 */
+
+/* trong while (1)  -  USER CODE BEGIN 3 */
+    if (g_btn_pressed != 0U)
+    {
+        g_btn_pressed = 0U;
+        if (app_ota_request() == 0)
+        {
+            NVIC_SystemReset();
+        }
+    }
+    HAL_GPIO_TogglePin(APP_LED_PORT, APP_LED_PIN);
+    HAL_Delay(100);

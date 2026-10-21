@@ -1,0 +1,7 @@
+../Core/Src/bl_flash.c:7:12:width_ok	4
+../Core/Src/bl_flash.c:12:17:to_type_program	3
+../Core/Src/bl_flash.c:23:17:to_voltage_range	3
+../Core/Src/bl_flash.c:34:12:range_ok	4
+../Core/Src/bl_flash.c:42:19:bl_flash_erase_sector	6
+../Core/Src/bl_flash.c:67:19:bl_flash_write	9
+../Core/Src/bl_flash.c:99:19:bl_flash_verify	5
